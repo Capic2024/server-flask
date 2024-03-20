@@ -12,7 +12,7 @@ def hello_world():  # put application's code here
 
 @app.route('/test', methods=['POST'])
 def hello_world():  # put application's code here
-    return 'Hello World!'
+    return 'post test'
 
 
 @app.route('/image', methods=['POST'])
