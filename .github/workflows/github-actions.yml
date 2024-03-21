@@ -50,5 +50,5 @@ jobs:
         username: ubuntu
         key: ${{ secrets.PRIVATE_KEY }}
         script: |
-          sudo docker pull capic/capic
-          sudo docker run -d -p 5000:5000 capic/capic
+          sudo docker pull ${{ secrets.DOCKER_NAME }}/capic
+          sudo docker run -d -p 5000:5000 ${{ secrets.DOCKER_NAME }}/capic
