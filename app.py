@@ -1,6 +1,7 @@
-from flask import Flask, jsonify
+from flask import Flask
+# , jsonify)
 # from connection import s3_connection
-from config import BUCKET_NAME
+# from config import BUCKET_NAME
 
 app = Flask(__name__)
 
