@@ -3,6 +3,8 @@ name: CI/CD using GitHub Actions & Docker
 on:
   push:
     branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
 
 permissions:
   contents: read
@@ -38,9 +40,9 @@ jobs:
     - name: Docker build & push
       if: github.ref == 'refs/heads/main'  # 메인 브랜치에 푸시했을 때만 실행
       run: |
-        echo $DOCKERHUB_TOKEN | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
-        docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.DOCKERHUB_REPOSITORY }}:latest ./
-        docker push ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.DOCKERHUB_REPOSITORY }}:latest
+        docker login -u ${{ secrets.DOCKERHUB_NAME }} -p ${{ secrets.DOCKERHUB_PASSWORD }}
+        docker build -t ${{ secrets.DOCKERHUB_NAME }}/${{ secrets.DOCKERHUB_REPOSITORY }}:latest .
+        docker push ${{ secrets.DOCKERHUB_NAME }}/${{ secrets.DOCKERHUB_REPOSITORY }}:latest
     # EC2로 배포
     - name: Deploy to EC2
       if: github.ref == 'refs/heads/main'  # 메인 브랜치에 푸시했을 때만 실행
