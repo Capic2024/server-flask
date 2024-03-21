@@ -1,90 +1,110 @@
-import cv2
-import torch
-import torchvision.transforms as transforms
-import torchvision
-from torchvision.models.detection import fasterrcnn_resnet50_fpn
-from collections import defaultdict
+import numpy as np
+import tensorflow as tf
+from mtcnn import MTCNN
+from tensorflow.keras.losses import BinaryCrossentropy
+from tensorflow.keras.optimizers import Adam
+import tensorflow as tf
+from tensorflow.keras.applications import VGG16
+from tensorflow.keras.layers import Dense, Flatten
+from tensorflow.keras.models import Model
+from tensorflow.keras.optimizers import Adam
+from tensorflow.keras.preprocessing.image import ImageDataGenerator
+from tensorflow.keras.preprocessing.image import load_img, img_to_array
+import os
+from sklearn.model_selection import train_test_split
+from tensorflow.keras.utils import to_categorical
 
-from torchvision.models.detection import fasterrcnn_resnet50_fpn
-from torchvision.models.detection.faster_rcnn import FastRCNNPredictor
-from torchvision.models.detection.rpn import AnchorGenerator
+data_dir = "Dataset/WIDER_train/WIDER_train/images"
 
-#from model_definition import SideFaceDetector  # 학습된 모델이 정의된 클래스 또는 스크립트
+# WIDER FACE 데이터셋 로드 및 전처리
+def load_data(data_dir):
+    images = []  # 이미지 파일 경로를 저장할 리스트
 
-# 모델 불러오기
-# model = SideFaceDetector()  # 학습된 모델이 정의된 클래스 또는 스크립트를 불러옵니다.
-# model.load_state_dict(torch.load('side_face_detector.pth'))  # 학습된 모델의 가중치를 불러옵니다.
-# model.eval()  # 평가 모드로 설정
+    # 데이터 디렉토리 내의 각 폴더를 순회
+    for subdir in os.listdir(data_dir):
+        subdir_path = os.path.join(data_dir, subdir)
+        if os.path.isdir(subdir_path):  # 하위 디렉토리인 경우
+            # 하위 디렉토리 내의 이미지 파일을 로드
+            for filename in os.listdir(subdir_path):
+                if filename.endswith(".jpg"):  # 이미지 파일
+                    image_path = os.path.join(subdir_path, filename)
+                    images.append(image_path)
 
-haarcascades_path = cv2.data.haarcascades
-print("하르 캐스케이드 파일 디렉토리:", haarcascades_path)
-
-fps = 30.0  # 프레임 속도 설정
-codec = cv2.VideoWriter_fourcc(*'XVID')
-output_size = (640, 480)  # 저장할 동영상의 크기 설정
-
-# VideoWriter 객체 생성
-out = cv2.VideoWriter('output.mp4', cv2.VideoWriter_fourcc(*'mp4v'), fps, output_size)
-
-model = fasterrcnn_resnet50_fpn(pretrained=True, weights=None)
-
-# model = fasterrcnn_resnet50_fpn(pretrained=True, weights='torchvision://fasterrcnn_resnet50_fpn')
+    return images
 
 
-model.eval()
+def split_dataset(images, test_size=0.2, random_state=42):
+    # 이미지를 학습용, 테스트용으로 나눔
+    train_images, test_images = train_test_split(images, test_size=test_size, random_state=random_state)
 
-# 전처리 함수 정의
-transform = transforms.Compose([
-    transforms.Resize((224, 224)),
-    transforms.ToTensor(),
-    transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
-])
+    return train_images, test_images
 
-video_path = "work.mp4"
+# 데이터 전처리
 
-# 동영상 파일 열기
-cap = cv2.VideoCapture(video_path)
+def preprocess_data(images, image_size=(224, 224)):
+    preprocessed_images = []  # 전처리된 이미지를 저장할 리스트
 
-# 얼굴 크기와 등장 시간 기록을 위한 딕셔너리 초기화
-face_sizes = defaultdict(int)
+    for image_path in images:
+        # 이미지 크기 조정 및 정규화
+        image = load_img(image_path, target_size=image_size)
+        image = img_to_array(image) / 255.0
+        preprocessed_images.append(image)
 
-# 동영상에서 얼굴 감지 및 처리
-while cap.isOpened():
-    # 프레임 읽기
-    ret, frame = cap.read()
-    if not ret:
-        break
+        # 레이블 포맷 변환
+        # 여기서 label은 얼굴의 위치와 크기를 나타내는 정보일 것입니다.
+        # 필요에 따라 레이블을 적절한 형식으로 변환하는 코드 작성
 
-    face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
+    return np.array(preprocessed_images)
 
-    # 그레이스케일로 변환
-    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+# 손실 함수 정의
+def custom_loss(y_true, y_pred):
+    # 손실 함수를 정의하는 코드 작성
+    loss = BinaryCrossentropy()(y_true, y_pred)
+    return loss
 
-    if face_cascade.empty():
-        print("하르 캐스케이드 분류기를 로드하는 데 문제가 발생했습니다.")
-    else:
-        print("하르 캐스케이드 분류기가 정상적으로 로드되었습니다.")
-    # 얼굴 검출
-    faces = face_cascade.detectMultiScale(gray, scaleFactor=1.1, minNeighbors=5)
+# 최적화 알고리즘 선택
+# 실수값 할당
+#optimizer = Adam(learning_rate=0.001)
+optimizer = Adam(learning_rate=0.001)
 
-    # 각 얼굴의 크기와 등장 시간 기록
-    for (x, y, w, h) in faces:
-        face_sizes[(x, y, w, h)] += 1
+# 학습 데이터 로드 및 전처리
+images = load_data(data_dir)
 
-    # 화면에 얼굴 박스 그리기
-    for (x, y, w, h) in faces:
-        cv2.rectangle(frame, (x, y), (x+w, y+h), (255, 0, 0), 2)
+dataset_size = len(images)
+print("데이터셋 크기:", dataset_size)
 
-    out.write(frame)
+preprocessed_images = preprocess_data(images)
 
-    # 화면에 표시
-    cv2.imshow('Face Detection', frame)
+# 데이터셋 나누기
+train_images, test_images = split_dataset(preprocessed_images)
 
-    # 'q'를 누르면 종료
-    if cv2.waitKey(1) & 0xFF == ord('q'):
-        break
 
-# 동영상 파일 닫기
-out.release()
-cap.release()
-cv2.destroyAllWindows()
+# 클래스 레이블링 (예시로 모든 이미지가 얼굴이 있는 것으로 가정)
+train_labels = np.ones(len(train_images))  # 얼굴이 있는 이미지에 대한 레이블 (1)
+test_labels = np.ones(len(test_images))  # 얼굴이 있는 이미지에 대한 레이블 (1)
+
+# 클래스 레이블을 one-hot 인코딩
+train_labels = to_categorical(train_labels, num_classes=2)
+test_labels = to_categorical(test_labels, num_classes=2)
+
+# VGG16 모델 로드
+base_model = VGG16(weights='imagenet', include_top=False, input_shape=(224, 224, 3))
+
+# Fully Connected 레이어 추가
+x = Flatten()(base_model.output)
+x = Dense(1024, activation='relu')(x)
+predictions = Dense(2, activation='softmax')(x)  # 2개의 클래스에 대한 예측이므로 클래스 수는 2로 설정
+
+# 모델 구성
+model = Model(inputs=base_model.input, outputs=predictions)
+
+# 모델 컴파일
+model.compile(optimizer=optimizer, loss='binary_crossentropy', metrics=['accauracy'])
+
+# 학습
+history = model.fit(train_images, train_labels, epochs=1, batch_size=8, validation_data=(test_images, test_labels))
+
+# 모델 평가
+loss, accuracy = model.evaluate(test_images, test_labels)
+print("손실:", loss)
+print("정확도:", accuracy)
