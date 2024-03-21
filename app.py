@@ -9,7 +9,7 @@ def hello_world():  # put application's code here
 
 
 @app.route('/test', methods=['POST'])
-def hello_world():  # put application's code here
+def test():  # put application's code here
     return 'post test'
 
 
