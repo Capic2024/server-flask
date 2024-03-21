@@ -2,7 +2,8 @@ version: '3.8'
 
 services:
   web:
-    image: python:3.9-slim
+    image: capic/capic:0.1
+    container_name: capic_container
     command: bash -c "pip install Flask && python app.py"
     volumes:
       - ./app:/app
