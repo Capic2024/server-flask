@@ -54,7 +54,9 @@ jobs:
         username: ubuntu
         key: ${{ secrets.PRIVATE_KEY }}
         script: |
-          sudo docker-compose -f docker-compose.yml down
           sudo docker login -u ${{ secrets.DOCKERHUB_NAME }} -p ${{ secrets.DOCKERHUB_PASSWORD }}
-          sudo docker-compose -f docker-compose.yml pull
-          sudo docker-compose -f docker-compose.yml up -d
+          sudo docker-compose stop ${{ secrets.DOCKER_SERVICE_NAME }}
+          sudo docker-compose rm -f ${{ secrets.DOCKER_SERVICE_NAME }}
+          sudo docker pull ${{ secrets.DOCKERHUB_NAME }}/${{ secrets.DOCKERHUB_REPOSITORY}}
+          sudo docker tag ${{ secrets.DOCKERHUB_NAME }}/${{ secrets.DOCKERHUB_REPOSITORY}} ${{ secrets.DOCKER_IMAGE_NAME }}
+          sudo docker-compose up -d

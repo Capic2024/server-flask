@@ -1,0 +1,13 @@
+version: '3'
+services:
+  flask:
+    container_name: server
+    image: flask
+    ports:
+      - "5000:5000"
+    networks:
+      - network
+
+networks:
+  network:
+    driver: bridge
