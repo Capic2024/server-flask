@@ -1,7 +1,0 @@
-version: '3.8'
-services:
-  flask:
-    container_name: server
-    image: flask
-    ports:
-      - "5000:5000"
