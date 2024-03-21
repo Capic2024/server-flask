@@ -1,0 +1,11 @@
+version: '3.8'
+
+services:
+  web:
+    image: python:3.9-slim
+    command: bash -c "pip install Flask && python app.py"
+    volumes:
+      - ./app:/app
+    ports:
+      - "5000:5000"
+
