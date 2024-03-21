@@ -56,5 +56,5 @@ jobs:
         script: |
           sudo docker-compose -f docker-compose.yml down
           sudo docker login -u ${{ secrets.DOCKERHUB_NAME }} -p ${{ secrets.DOCKERHUB_PASSWORD }}
-          sudo docker-compose -f /docker-compose.yml pull
+          sudo docker-compose -f docker-compose.yml pull
           sudo docker-compose -f docker-compose.yml up -d
