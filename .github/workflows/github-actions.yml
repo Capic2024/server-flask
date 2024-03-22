@@ -42,10 +42,10 @@ jobs:
         mkdir -p ./config  # config 폴더 생성
         echo "${{ secrets.YML }}" > ./config/application.yml  # GitHub Secrets에서 설정한 값을 application.yml 파일에 쓰기
 
-     # 프로젝트 실행
-    - name: Run project
-      run: |
-        python3 app.py
+#     # 프로젝트 실행
+#    - name: Run project
+#      run: |
+#        python3 app.py
 
     # Docker 빌드 & 푸시
     - name: Docker build & push
