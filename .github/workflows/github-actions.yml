@@ -41,7 +41,7 @@ jobs:
       run: |
         # 프로젝트 실행 명령어 또는 스크립트를 실행
         # 예를 들어, Flask 앱 실행:
-        python app.py  # 이 부분을 프로젝트 실행하는 명령어 또는 스크립트로 대체해야 함
+        #python app.py  # 이 부분을 프로젝트 실행하는 명령어 또는 스크립트로 대체해야 함
 
     # Docker 빌드 & 푸시
     - name: Docker build & push
