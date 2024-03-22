@@ -1,9 +1,13 @@
 from flask import (Flask, jsonify)
+from flask.cli import load_dotenv
+
 from connection import s3_connection
 import os
+import logging
 
 app = Flask(__name__)
 
+load_dotenv()
 
 @app.route('/')
 def hello_world():  # put application's code here
@@ -17,14 +21,6 @@ def test():  # put application's code here
 @app.route('/test2', methods=['GET'])
 def test2():  # put application's code here
     return 'post test2'
-
-@app.route('/test3', methods=['GET'])
-def test3():  # put application's code here
-    return 'post test3 again2'
-
-@app.route('/test4', methods=['GET'])
-def test4():  # put application's code here
-    return 'post test4'
 
 
 @app.route('/image', methods=['POST'])
@@ -40,6 +36,7 @@ def test_image():
             )
         return jsonify({'success': True})
     except Exception as e:
+        logging.error("Error uploading image: %s",str(e))
         return jsonify({'error': str(e)})
 
 if __name__ == '__main__':

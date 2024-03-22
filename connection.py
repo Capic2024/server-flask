@@ -1,6 +1,9 @@
 import boto3
 import os
 
+from flask.cli import load_dotenv
+
+load_dotenv()
 
 def s3_connection():
     s3 = boto3.client('s3',
