@@ -1,5 +1,5 @@
 from flask import (Flask, jsonify)
-from flask.cli import load_dotenv
+from dotenv import load_dotenv
 import boto3
 # from connection import s3_connection
 import os
@@ -8,7 +8,6 @@ import logging
 app = Flask(__name__)
 
 load_dotenv()
-
 
 @app.route('/')
 def hello_world():  # put application's code here
@@ -28,24 +27,15 @@ def test2():  # put application's code here
 @app.route('/image', methods=['POST'])
 def test_image():
     try:
-        # 환경 변수 로깅
-        logging.info("AWS_ACCESS_KEY_ID Type: %s", type(os.environ.get('AWS_ACCESS_KEY')))
-        logging.info("AWS_SECRET_ACCESS_KEY Type: %s", type(os.environ.get('AWS_SECRET_KEY')))
-        logging.info("REGION_NAME Type: %s", type(os.environ.get('REGION_NAME')))
-        logging.info("BUCKET_NAME Type: %s", type(os.environ.get('BUCKET_NAME')))
-
         client = boto3.client('s3',
-                              aws_access_key_id=os.environ.get('AWS_ACCESS_KEY'),
-                              aws_secret_access_key=os.environ.get('AWS_SECRET_KEY'),
-                              region_name=os.environ.get('REGION_NAME')
+                              aws_access_key_id=os.getenv('AWS_ACCESS_KEY'),
+                              aws_secret_access_key=os.getenv('AWS_SECRET_KEY'),
+                              region_name=os.getenv('REGION_NAME')
                               )
 
         file_name = 'dd.jpeg'  # 업로드할 파일 이름
-        bucket = os.environ.get('BUCKET_NAME')  # 버켓 주소
+        bucket = os.getenv('BUCKET_NAME')  # 버켓 주소
         key = 'dd.jpeg'  # s3 파일 이미지
-
-        # 파일 및 버킷 정보 로깅
-        logging.info("file_name Type: %s, bucket Type: %s, key Type: %s", type(file_name), type(bucket), type(key))
 
         client.upload_file(file_name, bucket, key)  # 파일 저장
         return jsonify({'success': True})

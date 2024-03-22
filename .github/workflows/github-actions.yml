@@ -23,6 +23,18 @@ jobs:
       with:
         python-version: '3.11.6'
 
+    - name: access to secrets
+      run: |
+        echo "AWS_ACCESS_KEY=$AWS_ACCESS_KEY" >> .env
+        echo "AWS_SECRET_KEY=$AWS_SECRET_KEY" >> .env
+        echo "BUCKET_NAME=$BUCKET_NAME" >> .env
+        echo "REGION_NAME=$REGION_NAME" >> .env
+      env:
+        AWS_ACCESS_KEY: ${{secrets.AWS_ACCESS_KEY}}
+        AWS_SECRET_KEY: ${{secrets.AWS_SECRET_KEY}}
+        BUCKET_NAME: ${{secrets.BUCKET_NAME}}
+        REGION_NAME: ${{secrets.REGION_NAME}}
+
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
