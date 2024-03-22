@@ -20,7 +20,7 @@ def test2():  # put application's code here
 
 @app.route('/test3', methods=['GET'])
 def test3():  # put application's code here
-    return 'post test3'
+    return 'post test3 again'
 
 @app.route('/image', methods=['POST'])
 def test_image():
