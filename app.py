@@ -28,6 +28,12 @@ def test2():  # put application's code here
 @app.route('/image', methods=['POST'])
 def test_image():
     try:
+        # 환경 변수 로깅
+        logging.info("AWS_ACCESS_KEY_ID Type: %s", type(os.environ.get('AWS_ACCESS_KEY')))
+        logging.info("AWS_SECRET_ACCESS_KEY Type: %s", type(os.environ.get('AWS_SECRET_KEY')))
+        logging.info("REGION_NAME Type: %s", type(os.environ.get('REGION_NAME')))
+        logging.info("BUCKET_NAME Type: %s", type(os.environ.get('BUCKET_NAME')))
+
         client = boto3.client('s3',
                               aws_access_key_id=os.environ.get('AWS_ACCESS_KEY'),
                               aws_secret_access_key=os.environ.get('AWS_SECRET_KEY'),
@@ -38,13 +44,18 @@ def test_image():
         bucket = os.environ.get('BUCKET_NAME')  # 버켓 주소
         key = 'dd.jpeg'  # s3 파일 이미지
 
+        # 파일 및 버킷 정보 로깅
+        logging.info("file_name Type: %s, bucket Type: %s, key Type: %s", type(file_name), type(bucket), type(key))
+
         client.upload_file(file_name, bucket, key)  # 파일 저장
         return jsonify({'success': True})
 
     except TypeError as e:
+        # TypeError 발생 시, 오류 로깅
         logging.error("TypeError 발생: %s", str(e))
         return jsonify({'error': "TypeError 발생: " + str(e)})
     except Exception as e:
+        # 기타 예외 발생 시, 오류 로깅
         logging.error("일반 오류 발생: %s", str(e))
         return jsonify({'error': "일반 오류 발생: " + str(e)})
 
