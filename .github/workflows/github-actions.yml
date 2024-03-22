@@ -9,6 +9,18 @@ on:
 permissions:
   contents: read
 
+cloud:
+  aws:
+    credentials:
+      access-key:
+      secret-key:
+    s3:
+      bucket: capic-bucket
+    region: #S3 지역
+      static: ap-northeast-2
+    stack:
+      auto: false
+
 jobs:
   CI-CD:
     runs-on: ubuntu-latest
