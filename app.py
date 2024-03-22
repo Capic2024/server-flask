@@ -28,7 +28,7 @@ def test_image():
     try:
         with open('dd.jpeg', 'rb') as image_file:
             s3.put_object(
-                Bucket=os.getenv('BUCKET_NAME'),
+                Bucket=os.environ.get('BUCKET_NAME'),
                 Body=image_file,
                 Key='dd.jpeg',
                 ContentType='image/jpeg'
