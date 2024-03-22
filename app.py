@@ -22,6 +22,11 @@ def test2():  # put application's code here
 def test3():  # put application's code here
     return 'post test3 again2'
 
+@app.route('/test4', methods=['GET'])
+def test4():  # put application's code here
+    return 'post test4'
+
+
 # @app.route('/image', methods=['POST'])
 # def test_image():
 #     s3 = s3_connection()
