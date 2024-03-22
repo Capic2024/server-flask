@@ -42,7 +42,7 @@ def test_image():
 
     except TypeError as e:
         # TypeError 발생 시, 오류 로깅
-        logging.error("TypeError 발생: %s", str(e))
+        logging.error("TypeError 발생: %s", os.getenv('AWS_ACCESS_KEY')+os.getenv('AWS_SECRET_KEY')+os.getenv('REGION_NAME'))
         return jsonify({'error': "TypeError 발생: " + str(e)})
     except Exception as e:
         # 기타 예외 발생 시, 오류 로깅
