@@ -62,6 +62,8 @@ jobs:
         host: ${{ secrets.HOST_PROD }}
         username: ubuntu
         key: ${{ secrets.PRIVATE_KEY }}
+        source: "docker-compose.yml"
+        target: "/home/ubuntu/server-flask"
         script: |
           sudo docker-compose down
         port: 22
