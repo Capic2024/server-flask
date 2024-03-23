@@ -50,7 +50,7 @@ jobs:
         host: ${{ secrets.HOST_PROD }}
         username: ubuntu
         key: ${{ secrets.PRIVATE_KEY }}
-        source: "docker-compose.yml dd.jpeg .env"
+        source: "docker-compose.yml .env"
         target: "/home/ubuntu/server-flask"
         port: 22
 
