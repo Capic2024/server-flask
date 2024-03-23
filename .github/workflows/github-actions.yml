@@ -79,6 +79,6 @@ jobs:
         key: ${{ secrets.PRIVATE_KEY }}
         script: |
           cd /home/ubuntu/server-flask
-          sudo docker-compose down
-          sudo docker-compose up -d
+          docker-compose down
+          docker-compose up -d
         port: 22
