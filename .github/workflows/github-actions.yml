@@ -76,6 +76,8 @@ jobs:
           cd /home/ubuntu/server-flask
           sudo docker login -u ${{ secrets.DOCKERHUB_NAME }} -p ${{ secrets.DOCKERHUB_PASSWORD }}
           sudo docker-compose down
+          sudo docker stop $(sudo docker ps -aqf "name=${{ secrets.DOCKERHUB_REPOSITORY }}") || true
+          sudo docker rm $(sudo docker ps -aqf "name=${{ secrets.DOCKERHUB_REPOSITORY }}") || true
           sudo docker-compose pull
           sudo docker-compose up -d
         port: 22
