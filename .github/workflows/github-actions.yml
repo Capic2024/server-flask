@@ -23,35 +23,21 @@ jobs:
       with:
         python-version: '3.11.6'
 
-    - name: access to secrets
+    - name: Create .env file
       run: |
-        echo "AWS_ACCESS_KEY=$AWS_ACCESS_KEY" >> .env
-        echo "AWS_SECRET_KEY=$AWS_SECRET_KEY" >> .env
-        echo "BUCKET_NAME=$BUCKET_NAME" >> .env
-        echo "REGION_NAME=$REGION_NAME" >> .env
-      env:
-        AWS_ACCESS_KEY: ${{secrets.AWS_ACCESS_KEY}}
-        AWS_SECRET_KEY: ${{secrets.AWS_SECRET_KEY}}
-        BUCKET_NAME: ${{secrets.BUCKET_NAME}}
-        REGION_NAME: ${{secrets.REGION_NAME}}
+        echo "AWS_ACCESS_KEY_ID=${{secrets.AWS_ACCESS_KEY}}" > .env
+        echo "AWS_SECRET_ACCESS_KEY=${{secrets.AWS_SECRET_KEY}}" >> .env
+        echo "BUCKET_NAME=${{secrets.BUCKET_NAME}}" >> .env
+        echo "REGION_NAME=${{secrets.REGION_NAME}}" >> .env
 
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
 
-    # application.yml 파일 생성
-    - name: make application.yml
-      if: |
-        contains(github.ref, 'main') ||
-        contains(github.ref, 'develop')
-      run: |
-        mkdir -p ./config  # config 폴더 생성
-        echo "${{ secrets.YML }}" > ./config/application.yml  # GitHub Secrets에서 설정한 값을 application.yml 파일에 쓰기
-
     # Docker 빌드 & 푸시
     - name: Docker build & push
-      if: github.ref == 'refs/heads/main'  # 메인 브랜치에 푸시했을 때만 실행
+      if: github.ref == 'refs/heads/main'
       run: |
         docker login -u ${{ secrets.DOCKERHUB_NAME }} -p ${{ secrets.DOCKERHUB_PASSWORD }}
         docker build -t ${{ secrets.DOCKERHUB_NAME }}/${{ secrets.DOCKERHUB_REPOSITORY }}:latest .
@@ -59,14 +45,35 @@ jobs:
 
       # EC2로 배포
     - name: Deploy to EC2
-      if: github.ref == 'refs/heads/main'  # 메인 브랜치에 푸시했을 때만 실행
+      if: github.ref == 'refs/heads/main'
       uses: appleboy/ssh-action@master
       with:
-        host: ${{ secrets.HOST_PROD }}  # EC2 퍼블릭 IPv4 DNS
+        host: ${{ secrets.HOST_PROD }}
         username: ubuntu
         key: ${{ secrets.PRIVATE_KEY }}
         script: |
-          sudo docker stop $(sudo docker ps -aqf "name=${{ secrets.DOCKERHUB_REPOSITORY }}") || true
-          sudo docker rm $(sudo docker ps -aqf "name=${{ secrets.DOCKERHUB_REPOSITORY }}") || true
-          sudo docker pull ${{ secrets.DOCKERHUB_NAME }}/${{ secrets.DOCKERHUB_REPOSITORY}}
-          sudo docker run -d -p 5000:5000 --name ${{ secrets.DOCKERHUB_REPOSITORY }} ${{ secrets.DOCKERHUB_NAME }}/${{ secrets.DOCKERHUB_REPOSITORY}}
+          sudo docker-compose down
+        port: 22
+
+    - name: SCP .env file to EC2
+      uses: appleboy/scp-action@master
+      with:
+        host: ${{ secrets.HOST_PROD }}
+        username: ubuntu
+        key: ${{ secrets.PRIVATE_KEY }}
+        source: ".env"
+        target: "/home/ubuntu/server-flask"
+        port: 22
+
+    - name: Restart services using docker-compose
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.HOST_PROD }}
+        username: ubuntu
+        key: ${{ secrets.PRIVATE_KEY }}
+        script: |
+          cd /home/ubuntu/server-flask
+          sudo docker-compose up -d
+        port: 22
+
+   

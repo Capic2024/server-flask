@@ -1,13 +1,8 @@
 version: '3'
 services:
-  flask:
-    container_name: server
-    image: flask
+  webapp:
+    build: .
     ports:
-      - "5000:5000"  # 호스트의 5000번 포트와 컨테이너의 5000번 포트를 바인딩
-    networks:
-      - network
-
-networks:
-  network:
-    driver: bridge
+      - "5000:5000"
+    env_file:
+      - .env
