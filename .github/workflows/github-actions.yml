@@ -28,11 +28,8 @@ jobs:
         echo "AWS_SECRET_ACCESS_KEY=${{secrets.AWS_SECRET_KEY}}" >> .env
         echo "BUCKET_NAME=${{secrets.BUCKET_NAME}}" >> .env
         echo "REGION_NAME=${{secrets.REGION_NAME}}" >> .env
-        
-    - name: Set up Docker Compose
-      run: |
-        echo "DOCKERHUB_NAME=${{ secrets.DOCKERHUB_NAME }}" >> $GITHUB_ENV
-        echo "DOCKERHUB_REPOSITORY=${{ secrets.DOCKERHUB_REPOSITORY }}" >> $GITHUB_ENV
+        echo "DOCKERHUB_NAME=${{secrets.DOCKERHUB_NAME}}" >> .env
+        echo "DOCKERHUB_REPOSITORY=${{secrets.DOCKERHUB_REPOSITORY}}" >> .env
 
     - name: Install dependencies
       run: |
