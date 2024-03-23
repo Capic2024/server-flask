@@ -1,8 +1,9 @@
 version: '3'
 services:
   webapp:
-    build: .
+    image: "${DOCKERHUB_NAME}/${DOCKERHUB_REPOSITORY}:latest"
     ports:
       - "5000:5000"
-    env_file:
-      - .env
+    container_name: "${DOCKERHUB_REPOSITORY}"
+
+
