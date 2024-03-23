@@ -6,8 +6,8 @@ import os
 import logging
 
 app = Flask(__name__)
-
 load_dotenv()
+logging.basicConfig(level=logging.ERROR)
 
 @app.route('/')
 def hello_world():  # put application's code here
@@ -34,6 +34,8 @@ def test_image():
                               )
 
         file_name = 'dd.jpeg'  # 업로드할 파일 이름
+        if not os.path.exists(file_name):
+            return jsonify({'error': "파일이 존재하지 않습니다."}), 400
         bucket = os.getenv('BUCKET_NAME')  # 버켓 주소
         key = 'dd.jpeg'  # s3 파일 이미지
 
