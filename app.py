@@ -1,4 +1,4 @@
-from flask import (Flask, jsonify)
+from flask import (Flask, jsonify, send_file)
 from dotenv import load_dotenv
 import boto3
 # from connection import s3_connection
@@ -24,7 +24,7 @@ def test2():  # put application's code here
     return 'post test2'
 
 
-@app.route('/image', methods=['POST'])
+@app.route('/image', methods=['GET'])
 def test_image():
     try:
         client = boto3.client('s3',
@@ -33,14 +33,15 @@ def test_image():
                               region_name=os.getenv('REGION_NAME')
                               )
 
-        file_name = 'dd.jpeg'  # 업로드할 파일 이름
-        if not os.path.exists(file_name):
-            return jsonify({'error': "파일이 존재하지 않습니다."}), 400
+        file_name = 'download.jpeg'  # 업로드할 파일 이름
+        # if not os.path.exists(file_name):
+        #     return jsonify({'error': "파일이 존재하지 않습니다."}), 400
         bucket = os.getenv('BUCKET_NAME')  # 버켓 주소
-        key = 'dd.jpeg'  # s3 파일 이미지
+        key = '디코 토끼.jpeg'  # s3 파일 이미지
 
-        client.upload_file(file_name, bucket, key)  # 파일 저장
-        return jsonify({'success': True})
+        client.download_file(bucket, key,file_name)  # 파일 저장
+        return send_file(file_name, as_attachment=True, attachment_filename=key)
+        # return jsonify({'success': True})
 
     except TypeError as e:
         # TypeError 발생 시, 오류 로깅
