@@ -58,6 +58,7 @@ jobs:
         username: ubuntu
         key: ${{ secrets.PRIVATE_KEY }}
         script: |
+          docker system prune -a -f
           sudo docker stop $(sudo docker ps -aqf "name=${{ secrets.DOCKERHUB_REPOSITORY }}") || true
           sudo docker rm $(sudo docker ps -aqf "name=${{ secrets.DOCKERHUB_REPOSITORY }}") || true
           sudo docker pull ${{ secrets.DOCKERHUB_NAME }}/${{ secrets.DOCKERHUB_REPOSITORY}}
