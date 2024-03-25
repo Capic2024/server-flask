@@ -60,7 +60,5 @@ jobs:
         script: |
           sudo docker stop $(sudo docker ps -aqf "name=${{ secrets.DOCKERHUB_REPOSITORY }}") || true
           sudo docker rm $(sudo docker ps -aqf "name=${{ secrets.DOCKERHUB_REPOSITORY }}") || true
-          docker system prun
-          docker volume prune
           sudo docker pull ${{ secrets.DOCKERHUB_NAME }}/${{ secrets.DOCKERHUB_REPOSITORY}}
           sudo docker run -d -p 5000:5000 --name ${{ secrets.DOCKERHUB_REPOSITORY }} ${{ secrets.DOCKERHUB_NAME }}/${{ secrets.DOCKERHUB_REPOSITORY}}
