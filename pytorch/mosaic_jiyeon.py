@@ -6,14 +6,14 @@ import face_recognition
 model = torch.hub.load('ultralytics/yolov5', 'custom', path='yolov5/runs/train/exp/weights/best.pt', force_reload=True)
 
 # 특정 사람의 얼굴 이미지 로드
-person_image = face_recognition.load_image_file("img.png")
+person_image = face_recognition.load_image_file("goognyoo.png")
 person_encoding = face_recognition.face_encodings(person_image)[0]
 
 # 모자이크 처리할 사이즈 정의
 block_size = 10
 
 # 동영상 파일 열기
-cap = cv2.VideoCapture('video.mp4')
+cap = cv2.VideoCapture('cutVideo.mp4')
 
 # 결과 동영상 파일 생성
 fps = int(cap.get(cv2.CAP_PROP_FPS))
