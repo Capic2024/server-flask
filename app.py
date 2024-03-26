@@ -1,6 +1,6 @@
+import io
+
 from flask import (Flask, request, send_file)
-import werkzeug
-import os
 
 app = Flask(__name__)
 
@@ -24,16 +24,20 @@ def video():  # put application's code here
     if 'file' not in request.files:
         return "No file part", 400
     file = request.files['file']
-    filename = werkzeug.utils.secure_filename(file.filename)
+    # 메모리 상에서 파일 처리
+    # 예시로, 파일을 메모리 상에서 읽고 바로 반환합니다.
+    # 실제로는 이 부분에서 파일을 처리하는 로직을 구현합니다.
+    file_stream = io.BytesIO()
+    file.save(file_stream)
+    file_stream.seek(0)  # 파일 포인터를 처음으로 이동
 
-    # 파일 저장 경로 설정
-    save_path = os.path.join("your/storage/path/", filename)
-    file.save(save_path)
-
-    # 파일 처리 로직을 여기에 작성 (예시에서는 단순 저장만 하고 있음)
-
-    # 처리한 파일을 Spring Boot로 반환
-    return send_file(save_path, as_attachment=True)
+    # 처리된 파일 스트림을 바로 응답으로 반환
+    return send_file(
+        file_stream,
+        as_attachment=True,
+        attachment_filename=file.filename,
+        mimetype=file.content_type
+    )
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port='5000')
