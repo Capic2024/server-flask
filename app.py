@@ -1,4 +1,5 @@
 import io
+import os
 
 from flask import (Flask, request, send_file)
 
@@ -24,20 +25,18 @@ def video():  # put application's code here
     if 'file' not in request.files:
         return "No file part", 400
     file = request.files['file']
-    # 메모리 상에서 파일 처리
-    # 예시로, 파일을 메모리 상에서 읽고 바로 반환합니다.
-    # 실제로는 이 부분에서 파일을 처리하는 로직을 구현합니다.
-    file_stream = io.BytesIO()
-    file.save(file_stream)
-    file_stream.seek(0)  # 파일 포인터를 처음으로 이동
+    if file.filename == '':
+        return "No selected file", 400
 
-    # 처리된 파일 스트림을 바로 응답으로 반환
-    return send_file(
-        file_stream,
-        as_attachment=True,
-        attachment_filename=file.filename,
-        mimetype=file.content_type
-    )
+    # 파일 저장 경로 지정, 여기서는 임시로 파일 이름으로 저장
+    filename = os.path.join('/tmp', file.filename)
+    file.save(filename)
+
+    # 여기서 파일을 처리하는 로직을 추가할 수 있습니다.
+    # 예를 들어, 처리된 파일을 다시 클라이언트에게 보낼 수 있습니다.
+    # 이 예시에서는 단순히 저장된 파일을 그대로 반환합니다.
+    return send_file(filename, mimetype='image/jpeg',as_attachment=True)
+
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port='5000')
