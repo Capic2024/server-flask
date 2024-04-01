@@ -2,14 +2,15 @@ import cv2
 import torch
 import face_recognition
 
+
 def mosaic(video_path, image_paths):
     # YOLOv5 모델 로드
-    model = torch.hub.load('ultralytics/yolov5', 'custom', path='yolov5/runs/train/exp/weights/best.pt', force_reload=True)
+    model = torch.hub.load('ultralytics/yolov5', 'custom', path='yolov5/runs/train/exp/weights/best.pt',
+                           force_reload=True)
     output_video_path = 'blurred_' + video_path
     # 특정 사람의 얼굴 이미지 로드
     # person_image = face_recognition.load_image_file("goognyoo.png")
     # person_encoding = face_recognition.face_encodings(person_image)[0]
-
 
     # 얼굴 인코딩을 저장할 리스트
     encodings = []
@@ -33,7 +34,7 @@ def mosaic(video_path, image_paths):
     fps = int(cap.get(cv2.CAP_PROP_FPS))
     frame_width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
     frame_height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
-    out = cv2.VideoWriter(output_video_path, cv2.VideoWriter_fourcc(*'mp4v'), fps, (frame_width, frame_height))
+    out = cv2.VideoWriter(output_video_path, cv2.VideoWriter.fourcc(*'mp4v'), fps, (frame_width, frame_height))
 
     # 동영상 프레임마다 처리
     while cap.isOpened():
