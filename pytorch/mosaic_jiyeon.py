@@ -5,9 +5,14 @@ import face_recognition
 
 def mosaic(video_path, image_paths):
     # YOLOv5 모델 로드
-    model = torch.hub.load('ultralytics/yolov5', 'custom', path='yolov5/runs/train/exp/weights/best.pt',
-                           force_reload=True)
+    # model_path = 'best.pt'  # 모델 파일의 로컬 경로로 수정하세요
+    # print('end best.pt')
+    model = torch.load('best.pt')
+    # model = torch.hub.load('ultralytics/yolov5', 'custom', path=model_path, force_reload=True)
+
     output_video_path = 'blurred_' + video_path
+    print('loading yolo5')
+
     # 특정 사람의 얼굴 이미지 로드
     # person_image = face_recognition.load_image_file("goognyoo.png")
     # person_encoding = face_recognition.face_encodings(person_image)[0]
