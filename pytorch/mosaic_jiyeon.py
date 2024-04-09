@@ -1,14 +1,14 @@
 import cv2
 import torch
-import face_recognition
+import os
 from facenet_pytorch import MTCNN, InceptionResnetV1
 import torchvision.transforms as transforms
-import numpy as np
 
 def mosaic(video_path, image_paths):
     # YOLOv5 모델 로드
-    model = torch.hub.load('ultralytics/yolov5', 'custom', path='best.pt', force_reload=True)
-    output_video_path = 'blurred_' + video_path
+    # model = torch.hub.load('./pytorch/yolov5', 'custom', path='./pytorch/best.pt', source='local')
+    model = torch.hub.load('ultralytics/yolov5', 'custom', path='./pytorch/best.pt')
+    output_video_path = os.path.join('tmp', video_path)
     # 특정 사람의 얼굴 이미지 로드
     # person_image = face_recognition.load_image_file("goognyoo.png")
     # person_encoding = face_recognition.face_encodings(person_image)[0]
@@ -114,8 +114,8 @@ def mosaic(video_path, image_paths):
 
     return output_video_path
 
-if __name__ == "__main__":
-    import sys
-    video_path = sys.argv[1]
-    image_paths = ["img.png", "img_1.png", "goognyoo.png"]
-    mosaic(video_path, image_paths)
+# if __name__ == "__main__":
+#     import sys
+#     video_path = sys.argv[1]
+#     image_paths = ["train/Gongyoo/img.png", "train/Gongyoo/img_1.png", "train/Gongyoo/goognyoo.png", "train/Gongyoo/gongyoo2.jpg", "train/Gongyoo/img_2.png"]
+#     mosaic(video_path, image_paths)
