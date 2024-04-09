@@ -47,7 +47,6 @@ def handle_video():
     print(output_video_path)
     return send_file(output_video_path, mimetype='video/mp4', as_attachment=True)
 
-
 @app.route('/image', methods=['POST'])
 def image_test():
     if 'file' not in request.files:
