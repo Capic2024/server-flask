@@ -1,90 +1,120 @@
 import cv2
 import torch
+import os
+from facenet_pytorch import MTCNN, InceptionResnetV1
 import torchvision.transforms as transforms
-import torchvision
-from torchvision.models.detection import fasterrcnn_resnet50_fpn
-from collections import defaultdict
 
-from torchvision.models.detection import fasterrcnn_resnet50_fpn
-from torchvision.models.detection.faster_rcnn import FastRCNNPredictor
-from torchvision.models.detection.rpn import AnchorGenerator
+def mosaic(video_path, image_paths):
+    # YOLOv5 모델 로드
+    # model = torch.hub.load('./pytorch/yolov5', 'custom', path='./pytorch/best.pt', source='local')
+    model = torch.hub.load('ultralytics/yolov5', 'custom', path='./pytorch/best.pt')
+    output_video_path = os.path.join('tmp', video_path)
+    # 특정 사람의 얼굴 이미지 로드
+    # person_image = face_recognition.load_image_file("goognyoo.png")
+    # person_encoding = face_recognition.face_encodings(person_image)[0]
 
-#from model_definition import SideFaceDetector  # 학습된 모델이 정의된 클래스 또는 스크립트
+    # MTCNN과 SphereFace 모델 로드
+    resnet = InceptionResnetV1(pretrained='vggface2').eval()
 
-# 모델 불러오기
-# model = SideFaceDetector()  # 학습된 모델이 정의된 클래스 또는 스크립트를 불러옵니다.
-# model.load_state_dict(torch.load('side_face_detector.pth'))  # 학습된 모델의 가중치를 불러옵니다.
-# model.eval()  # 평가 모드로 설정
+    # 얼굴 인코딩을 저장할 리스트
+    encodings = []
 
-haarcascades_path = cv2.data.haarcascades
-print("하르 캐스케이드 파일 디렉토리:", haarcascades_path)
+    # 각 이미지에서 얼굴을 인코딩하여 리스트에 추가
+    for image_path in image_paths:
+        # 이미지 파일 로드
+        image = cv2.imread(image_path)
+        # 얼굴 인코딩
+        results = model(image)
 
-fps = 30.0  # 프레임 속도 설정
-codec = cv2.VideoWriter_fourcc(*'XVID')
-output_size = (640, 480)  # 저장할 동영상의 크기 설정
+        # 감지된 객체 중에서 사람만 처리
+        for result in results.xyxy[0]:
+            if result[5] == 0:  # 클래스 인덱스가 0일 때(사람을 의미하는 클래스)
+                x1, y1, x2, y2 = result[:4].int().tolist()
+                # 얼굴 영역 추출
+                face_roi = image[y1:y2, x1:x2]
 
-# VideoWriter 객체 생성
-out = cv2.VideoWriter('output.mp4', cv2.VideoWriter_fourcc(*'mp4v'), fps, output_size)
+                # PIL 이미지로 변환
+                face_image = transforms.ToPILImage()(face_roi)
 
-model = fasterrcnn_resnet50_fpn(pretrained=True, weights=None)
+                face_image_tensor = transforms.ToTensor()(face_image)
 
-# model = fasterrcnn_resnet50_fpn(pretrained=True, weights='torchvision://fasterrcnn_resnet50_fpn')
+                # 얼굴 인코딩
+                encoding = resnet(face_image_tensor.unsqueeze(0))
+                #encodings.append(encoding.detach().numpy())
+                encodings.append(encoding)
 
+    # 모자이크 처리할 사이즈 정의
+    block_size = 10
 
-model.eval()
+    # 동영상 파일 열기
+    cap = cv2.VideoCapture(video_path)
 
-# 전처리 함수 정의
-transform = transforms.Compose([
-    transforms.Resize((224, 224)),
-    transforms.ToTensor(),
-    transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
-])
+    # 결과 동영상 파일 생성
+    fps = int(cap.get(cv2.CAP_PROP_FPS))
+    frame_width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+    frame_height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+    out = cv2.VideoWriter(output_video_path, cv2.VideoWriter.fourcc(*'mp4v'), fps, (frame_width, frame_height))
 
-video_path = "work.mp4"
+    # 동영상 프레임마다 처리
+    while cap.isOpened():
+        ret, frame = cap.read()
+        if not ret:
+            break
 
-# 동영상 파일 열기
-cap = cv2.VideoCapture(video_path)
+        # YOLOv5를 사용하여 객체 감지
+        results = model(frame)
 
-# 얼굴 크기와 등장 시간 기록을 위한 딕셔너리 초기화
-face_sizes = defaultdict(int)
+        threshold = 0.6
 
-# 동영상에서 얼굴 감지 및 처리
-while cap.isOpened():
-    # 프레임 읽기
-    ret, frame = cap.read()
-    if not ret:
-        break
+        # 감지된 얼굴에 모자이크 처리
+        for result in results.xyxy[0]:
+            if result[5] == 0:  # 클래스 인덱스가 0일 때(사람 얼굴을 의미하는 클래스)
+                x1, y1, x2, y2 = result[:4].int().tolist()
+                # 얼굴 영역 추출
+                face_roi = frame[y1:y2, x1:x2]
 
-    face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
+                # 얼굴 이미지 크기 조정
+                face_roi_resized = cv2.resize(face_roi, (224, 224))
 
-    # 그레이스케일로 변환
-    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+                # PIL 이미지로 변환
+                face_image = transforms.ToPILImage()(face_roi_resized)
 
-    if face_cascade.empty():
-        print("하르 캐스케이드 분류기를 로드하는 데 문제가 발생했습니다.")
-    else:
-        print("하르 캐스케이드 분류기가 정상적으로 로드되었습니다.")
-    # 얼굴 검출
-    faces = face_cascade.detectMultiScale(gray, scaleFactor=1.1, minNeighbors=5)
+                # PIL 이미지를 Tensor로 변환
+                face_image_tensor = transforms.ToTensor()(face_image)
 
-    # 각 얼굴의 크기와 등장 시간 기록
-    for (x, y, w, h) in faces:
-        face_sizes[(x, y, w, h)] += 1
+                # 얼굴 인코딩
+                encoding = resnet(face_image_tensor.unsqueeze(0))
+                #encoding_np = encoding.detach().numpy()
 
-    # 화면에 얼굴 박스 그리기
-    for (x, y, w, h) in faces:
-        cv2.rectangle(frame, (x, y), (x+w, y+h), (255, 0, 0), 2)
+                # 특정 사람과의 얼굴 일치 여부 확인
+                match = False
+                for enc in encodings:
+                    # 각 얼굴의 특징 벡터를 비교하여 유사성 판단
+                    similarity = torch.nn.functional.cosine_similarity(encoding, enc, dim=1)
+                    if similarity > threshold:  # 유사성이 임계값보다 크면 얼굴이 일치한다고 판단
+                        match = True
+                        break
 
-    out.write(frame)
+                if match:  # 특정 사람과 일치하지 않는 경우에만 모자이크 처리
+                    # 얼굴 영역에 모자이크 처리
+                    continue
 
-    # 화면에 표시
-    cv2.imshow('Face Detection', frame)
+                blurred_face = cv2.resize(face_roi, (block_size, block_size))
+                blurred_face = cv2.resize(blurred_face, (x2 - x1, y2 - y1), interpolation=cv2.INTER_AREA)
+                frame[y1:y2, x1:x2] = blurred_face
 
-    # 'q'를 누르면 종료
-    if cv2.waitKey(1) & 0xFF == ord('q'):
-        break
+        # 모자이크 처리된 프레임 결과 동영상에 추가
+        out.write(frame)
 
-# 동영상 파일 닫기
-out.release()
-cap.release()
-cv2.destroyAllWindows()
+        # 종료
+    cap.release()
+    out.release()
+    cv2.destroyAllWindows()
+
+    return output_video_path
+
+# if __name__ == "__main__":
+#     import sys
+#     video_path = sys.argv[1]
+#     image_paths = ["train/Gongyoo/img.png", "train/Gongyoo/img_1.png", "train/Gongyoo/goognyoo.png", "train/Gongyoo/gongyoo2.jpg", "train/Gongyoo/img_2.png"]
+#     mosaic(video_path, image_paths)
