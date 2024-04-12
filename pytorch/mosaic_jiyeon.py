@@ -14,7 +14,6 @@ def mosaic(video_path, image_paths):
     # person_encoding = face_recognition.face_encodings(person_image)[0]
 
     # MTCNN과 SphereFace 모델 로드
-    mtcnn = MTCNN()
     resnet = InceptionResnetV1(pretrained='vggface2').eval()
 
     # 얼굴 인코딩을 저장할 리스트
