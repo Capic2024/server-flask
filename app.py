@@ -49,6 +49,7 @@ def handle_video():
 
 @app.route('/image', methods=['POST'])
 def image_test():
+    print('start')
     if 'file' not in request.files:
         return "No file part", 400
     file = request.files['file']
@@ -59,7 +60,7 @@ def image_test():
     filename = os.path.join('/tmp', file.filename)
     file.save(filename)
 
-    return send_file(filename, mimetype='image.jpeg', as_attachment=True)
+    return 'success'
 
 
 if __name__ == '__main__':
