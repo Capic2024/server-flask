@@ -45,7 +45,7 @@ jobs:
     - name: Docker build & push
       if: github.ref == 'refs/heads/main'  # 메인 브랜치에 푸시했을 때만 실행
       run: |
-        
+        docker image prune -a 
         docker login -u ${{ secrets.DOCKERHUB_NAME }} -p ${{ secrets.DOCKERHUB_PASSWORD }}
         docker build -t ${{ secrets.DOCKERHUB_NAME }}/${{ secrets.DOCKERHUB_REPOSITORY }}:latest .
         docker push ${{ secrets.DOCKERHUB_NAME }}/${{ secrets.DOCKERHUB_REPOSITORY }}:latest
