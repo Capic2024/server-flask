@@ -21,13 +21,15 @@ def test():  # put application's code here
 @app.route('/target', methods=['POST'])
 def process_video():
     video_file = request.files['video']
+
     video_filename = video_file.filename
     save_path = os.path.join('./', video_filename)
     video_file.save(save_path)
 
+
     identified_faces = extract_and_identify_faces_from_video(save_path)
-    face_base64_arrays = save_faces(identified_faces)  # 이미지를 Base64 인코딩된 문자열로 반환
-    return jsonify({"images": face_base64_arrays})  # JSON 객체로 변환
+    # face_base64_arrays = save_faces(identified_faces)  # 이미지를 Base64 인코딩된 문자열로 반환
+    return jsonify({"images": identified_faces})  # JSON 객체로 변환
 
 
 @app.route('/video', methods=['POST'])

@@ -1,10 +1,10 @@
 import base64
+from io import BytesIO
 
 import cv2
 import face_recognition
-import os
 import numpy as np
-from flask import jsonify
+from PIL import Image
 
 
 def extract_and_identify_faces_from_video(video_path):
@@ -26,6 +26,10 @@ def extract_and_identify_faces_from_video(video_path):
             # 얼굴 이미지 추출
             face_image = frame[top:bottom, left:right]
             face_images.append(face_image)
+
+
+
+
             face_encodings.append(encoding)
 
     # 인식된 얼굴 분류
@@ -53,17 +57,28 @@ def extract_and_identify_faces_from_video(video_path):
 
 
 def save_faces(identified_faces):
-    face_base64_arrays = []  # Base64 인코딩된 이미지 배열을 저장할 리스트
-    for group in identified_faces:
-        group_base64_arrays = []
-        for face, _ in group[:3]:  # 인물별 최대 3개까지
-            _, buffer = cv2.imencode('.jpg', face)  # OpenCV를 사용하여 이미지를 바이트로 인코딩
-            byte_array = buffer.tobytes()  # NumPy 배열을 바이트 배열로 변환
-            base64_encoded = base64.b64encode(byte_array).decode('utf-8')  # Base64로 인코딩 후 문자열로 변환
-            group_base64_arrays.append(base64_encoded)
-        face_base64_arrays.append(group_base64_arrays)
-    return face_base64_arrays  # 2차원 문자열 배열 반환
+    face_base64_arrays = []
 
+    for face_group in identified_faces:
+        encoded_faces = []
+        count = 0  # 각 그룹별로 이미지 개수를 세는 카운터
+        for face_image, _ in face_group:
+            # OpenCV는 BGR 형식으로 이미지를 읽기 때문에 RGB로 변환
+            face_image = cv2.cvtColor(face_image, cv2.COLOR_BGR2RGB)
+            # 이미지를 PIL 이미지 객체로 변환
+            pil_img = Image.fromarray(face_image)
+            # 메모리 내에서 이미지를 저장하기 위한 버퍼 생성
+            buf = BytesIO()
+            # 이미지를 JPEG 포맷으로 저장
+            pil_img.save(buf, format="JPEG")
+            # 버퍼의 바이트 데이터를 Base64 인코딩 문자열로 변환
+            base64_string = base64.b64encode(buf.getvalue()).decode('utf-8')
+            # 해당 인물의 인코딩된 이미지를 추가
+            encoded_faces.append(base64_string)
+            count += 1
+            if count == 3:  # 각 인물 그룹에서 최대 3개의 이미지만 저장
+                break
+        # 모든 인물의 인코딩된 이미지를 배열에 추가
+        face_base64_arrays.append(encoded_faces)
 
-
-
+    return face_base64_arrays
