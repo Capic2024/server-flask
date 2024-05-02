@@ -3,3 +3,4 @@ wider face.v3i.yolov5pytorch
 dist
 build
 myenv
+svm/**
