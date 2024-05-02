@@ -7,7 +7,7 @@ import torchvision.transforms as transforms
 def mosaic(video_path, image_paths):
     # YOLOv5 모델 로드
     # model = torch.hub.load('./pytorch/yolov5', 'custom', path='./pytorch/best.pt', source='local')
-    model = torch.hub.load('ultralytics/yolov5', 'custom', path='./pytorch/best.pt',source='local')
+    model = torch.hub.load('ultralytics/yolov5', 'custom', path='./pytorch/best.pt')
     output_video_path = os.path.join('tmp', video_path)
     # 특정 사람의 얼굴 이미지 로드
     # person_image = face_recognition.load_image_file("goognyoo.png")
