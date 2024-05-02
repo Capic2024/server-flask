@@ -1,8 +1,10 @@
 import io
 import os
 from pytorch import mosaic_jiyeon
+from createTarget import extract_and_identify_faces_from_video,save_faces
 
-from flask import (Flask, request, send_file)
+
+from flask import (Flask, request, send_file, jsonify)
 
 app = Flask(__name__)
 
@@ -16,10 +18,18 @@ def hello_world():  # put application's code here
 def test():  # put application's code here
     return 'post test'
 
-
-@app.route('/test2', methods=['GET'])
+@app.route('/target', methods=['POST'])
 def test2():  # put application's code here
-    return '03.25 22:40'
+    video_file = request.files['video']
+    # 서버에 파일 저장
+    video_filename = video_file.filename
+    save_path = os.path.join('./', video_filename)
+    video_file.save(save_path)
+
+    # 비디오 파일에서 얼굴 추출 및 식별
+    identified_faces = extract_and_identify_faces_from_video(save_path)
+    save_faces(identified_faces)  # 식별된 얼굴 저장
+    return jsonify(identified_faces)
 
 
 @app.route('/video', methods=['POST'])
