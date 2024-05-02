@@ -21,27 +21,15 @@ def mosaic(video_path, image_paths):
 
     # 각 이미지에서 얼굴을 인코딩하여 리스트에 추가
     for image_path in image_paths:
+        print(image_path)
         # 이미지 파일 로드
         image = cv2.imread(image_path)
+        # PIL 이미지로 변환
+        face_image = transforms.ToPILImage()(image)
+        face_image_tensor = transforms.ToTensor()(face_image)
         # 얼굴 인코딩
-        results = model(image)
-
-        # 감지된 객체 중에서 사람만 처리
-        for result in results.xyxy[0]:
-            if result[5] == 0:  # 클래스 인덱스가 0일 때(사람을 의미하는 클래스)
-                x1, y1, x2, y2 = result[:4].int().tolist()
-                # 얼굴 영역 추출
-                face_roi = image[y1:y2, x1:x2]
-
-                # PIL 이미지로 변환
-                face_image = transforms.ToPILImage()(face_roi)
-
-                face_image_tensor = transforms.ToTensor()(face_image)
-
-                # 얼굴 인코딩
-                encoding = resnet(face_image_tensor.unsqueeze(0))
-                #encodings.append(encoding.detach().numpy())
-                encodings.append(encoding)
+        encoding = resnet(face_image_tensor.unsqueeze(0))
+        encodings.append(encoding)
 
     # 모자이크 처리할 사이즈 정의
     block_size = 10
@@ -116,5 +104,5 @@ def mosaic(video_path, image_paths):
 # if __name__ == "__main__":
 #     import sys
 #     video_path = sys.argv[1]
-#     image_paths = ["train/Gongyoo/img.png", "train/Gongyoo/img_1.png", "train/Gongyoo/goognyoo.png", "train/Gongyoo/gongyoo2.jpg", "train/Gongyoo/img_2.png"]
+#     image_paths = ["train/yoo/yoo1.png", "train/yoo/yoo2.png", "train/yoo/yoo3.png"]
 #     mosaic(video_path, image_paths)
