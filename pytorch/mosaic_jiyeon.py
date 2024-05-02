@@ -52,7 +52,7 @@ def mosaic(video_path, image_paths):
         # YOLOv5를 사용하여 객체 감지
         results = model(frame)
 
-        threshold = 0.6
+        threshold = 0.7
 
         # 감지된 얼굴에 모자이크 처리
         for result in results.xyxy[0]:
