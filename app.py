@@ -19,17 +19,15 @@ def test():  # put application's code here
     return 'post test'
 
 @app.route('/target', methods=['POST'])
-def test2():  # put application's code here
+def process_video():
     video_file = request.files['video']
-    # 서버에 파일 저장
     video_filename = video_file.filename
     save_path = os.path.join('./', video_filename)
     video_file.save(save_path)
 
-    # 비디오 파일에서 얼굴 추출 및 식별
     identified_faces = extract_and_identify_faces_from_video(save_path)
-    save_faces(identified_faces)  # 식별된 얼굴 저장
-    return jsonify(identified_faces)
+    face_base64_arrays = save_faces(identified_faces)  # 이미지를 Base64 인코딩된 문자열로 반환
+    return jsonify({"images": face_base64_arrays})  # JSON 객체로 변환
 
 
 @app.route('/video', methods=['POST'])
