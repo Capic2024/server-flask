@@ -1,7 +1,8 @@
 import io
 import os
 from pytorch import mosaic_jiyeon
-from createTarget import extract_and_identify_faces_from_video,save_faces
+from createTarget import extract_and_identify_faces_from_video
+from yoona_target import yoona_test
 
 
 from flask import (Flask, request, send_file, jsonify)
@@ -28,6 +29,13 @@ def process_video():
 
 
     identified_faces = extract_and_identify_faces_from_video(save_path)
+    # face_base64_arrays = save_faces(identified_faces)  # 이미지를 Base64 인코딩된 문자열로 반환
+    return jsonify({"images": identified_faces})  # JSON 객체로 변환
+
+@app.route('/target2', methods=['POST'])
+def yoona():
+    video_path='./cutVideo.mp4'
+    identified_faces = yoona_test(video_path)
     # face_base64_arrays = save_faces(identified_faces)  # 이미지를 Base64 인코딩된 문자열로 반환
     return jsonify({"images": identified_faces})  # JSON 객체로 변환
 
