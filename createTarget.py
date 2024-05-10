@@ -26,10 +26,6 @@ def extract_and_identify_faces_from_video(video_path):
             # 얼굴 이미지 추출
             face_image = frame[top:bottom, left:right]
             face_images.append(face_image)
-
-
-
-
             face_encodings.append(encoding)
 
     # 인식된 얼굴 분류
