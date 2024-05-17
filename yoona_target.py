@@ -19,16 +19,14 @@ def yoona_test(video_path):
         if not success:
             break
 
-        face_locations = face_recognition.face_locations(frame)  # 현재 프레임에서 얼굴 위치 탐지
+       #face_locations = face_recognition.face_locations(frame)  # 현재 프레임에서 얼굴 위치 탐지
+        face_locations = face_recognition.face_locations(frame, model='cnn')
         current_encodings = face_recognition.face_encodings(frame, face_locations)  # 얼굴 위치에 대한 인코딩
 
         for (top, right, bottom, left), encoding in zip(face_locations, current_encodings):
             # 얼굴 이미지 추출
             face_image = frame[top:bottom, left:right]
             face_images.append(face_image)
-
-
-
 
             face_encodings.append(encoding)
 
@@ -42,7 +40,7 @@ def yoona_test(video_path):
                 group_encodings = [enc for _, enc in face_group]
                 avg_encoding = np.mean(group_encodings, axis=0)
                 dist = np.linalg.norm(avg_encoding - encoding)
-                if dist < 0.6:  # 같은 사람으로 판단하는 임계값
+                if dist < 0.56:  # 같은 사람으로 판단하는 임계값
                     face_group.append((face_images[idx], encoding))
                     matched = True
                     break

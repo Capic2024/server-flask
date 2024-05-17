@@ -27,7 +27,7 @@ def mosaic(video_path, image_paths):
     face_count = 0
     current_frame_count = 0
 
-    model = torch.hub.load('ultralytics/yolov5', 'custom', path='macWideface.pt', force_reload=True)
+    model = torch.hub.load('ultralytics/yolov5', 'custom', path='./best.pt', force_reload=True)
 
     embedding_list = []
     for image_path in image_paths:
