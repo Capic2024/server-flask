@@ -26,6 +26,7 @@ def extract_and_identify_faces_from_video(video_path):
             # 얼굴 이미지 추출
             face_image = frame[top:bottom, left:right]
             face_images.append(face_image)
+
             face_encodings.append(encoding)
 
     # 인식된 얼굴 분류
@@ -38,12 +39,15 @@ def extract_and_identify_faces_from_video(video_path):
                 group_encodings = [enc for _, enc in face_group]
                 avg_encoding = np.mean(group_encodings, axis=0)
                 dist = np.linalg.norm(avg_encoding - encoding)
-                if dist < 0.6:  # 같은 사람으로 판단하는 임계값
+                if dist < 0.555:  # 같은 사람으로 판단하는 임계값
                     face_group.append((face_images[idx], encoding))
                     matched = True
                     break
             if not matched:
                 identified_faces.append([(face_images[idx], encoding)])
+
+        # 얼굴 수가 많은 순서로 그룹 정렬
+        identified_faces.sort(key=lambda x: len(x), reverse=True)
 
     video_capture.release()
     print('end1')
