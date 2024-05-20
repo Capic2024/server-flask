@@ -17,9 +17,6 @@ def mosaic(video_path, image_paths):
 
     print(f"Total number of frames in the video: {total_frames}")
 
-    threshold = 0.465
-    not_threshold = 0.47
-
     faces_dir = os.path.join('tmp', 'faces')
     if not os.path.exists(faces_dir):
         os.makedirs(faces_dir)
@@ -49,6 +46,13 @@ def mosaic(video_path, image_paths):
 
         print(f"{current_frame_count}감지 시작")
 
+        if len(detections.xyxy[0]) > 2:
+            threshold = 0.27
+            not_threshold = 0.2851
+        else:
+            threshold = 0.3
+            not_threshold = 0.47
+
         for face_id in detections.xyxy[0]:
             x1, y1, x2, y2 = face_id[:4].int().tolist()
             if y2 - y1 > 50 and x2 - x1 > 50:
@@ -59,17 +63,24 @@ def mosaic(video_path, image_paths):
                     distance = result['distance']
 
                     if not_threshold >= distance >= threshold:
-                        face_filename = f"face_{face_count}.jpg"
+                        face_filename = f"D/face_{face_count}.jpg"
                         verified_str = 'Different'
-                        distance_str = '(%.4f <= %.4f)' % (distance, threshold)
+                        distance_str = '(%.4f >= %.4f)' % (distance, threshold)
                         print(face_filename,verified_str, distance_str)
                         face = cv2.resize(face_image, (10, 10))
                         face = cv2.resize(face, (x2 - x1, y2 - y1), interpolation=cv2.INTER_AREA)
                         frame[y1:y2, x1:x2] = face
                         face_filepath = os.path.join(faces_dir, face_filename)
                         cv2.imwrite(face_filepath, face_image)
+                        break
 
                     if distance < threshold:
+                        face_filename = f"S/face_{face_count}.jpg"
+                        verified_str = 'Same'
+                        distance_str = '(%.4f >= %.4f)' % (distance, threshold)
+                        print(face_filename, verified_str, distance_str)
+                        face_filepath = os.path.join(faces_dir, face_filename)
+                        cv2.imwrite(face_filepath, face_image)
                         break
 
                     if distance > not_threshold:

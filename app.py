@@ -42,7 +42,7 @@ def handle_video():
         image_file = request.files[f'image{i}']
         if image_file:
             filename, extension = os.path.splitext(image_file.filename)
-            image_filename = os.path.join('save/train/Gongyoo', f'image{i}{extension}')
+            image_filename = os.path.join('save/train', f'image{i}{extension}')
             image_file.save(image_filename)
             image_paths.append(image_filename)
             print(f'Image {i} saved successfully.')
