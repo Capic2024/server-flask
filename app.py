@@ -18,7 +18,7 @@ def process_video():
     video_file.save(save_path)
 
 
-    identified_faces = yoona_test(save_path)
+    identified_faces = extract_and_identify_faces_from_video(save_path)
     # face_base64_arrays = save_faces(identified_faces)  # 이미지를 Base64 인코딩된 문자열로 반환
     return jsonify({"images": identified_faces})  # JSON 객체로 변환
 
@@ -48,8 +48,8 @@ def handle_video():
             image_paths.append(image_filename)
             print(f'Image {i} saved successfully.')
 
+    # output_video_path = mosaic.mosaic(video_file.filename, image_paths)
     output_video_path = mosaic_jiyeon.mosaic(video_file.filename, image_paths)
-    # output_video_path = mosaic_jiyeon.mosaic(video_file.filename, image_paths)
     print(output_video_path)
     return send_file(output_video_path, mimetype='video/mp4', as_attachment=True, download_name='output_video.mp4')
 

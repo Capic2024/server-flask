@@ -57,7 +57,7 @@ def mosaic(video_path, image_paths):
         # YOLOv5를 사용하여 객체 감지
         results = model(frame)
 
-        threshold = 0.65
+        threshold = 0.45
 
         # 감지된 얼굴에 모자이크 처리
         for result in results.xyxy[0]:
@@ -86,6 +86,7 @@ def mosaic(video_path, image_paths):
                 for enc in encodings:
                     # 각 얼굴의 특징 벡터를 비교하여 유사성 판단
                     similarity = torch.nn.functional.cosine_similarity(encoding, enc, dim=1)
+                    # print(similarity)
                     if similarity > threshold:  # 유사성이 임계값보다 크면 얼굴이 일치한다고 판단
                         match = True
                         break
@@ -122,5 +123,5 @@ def mosaic(video_path, image_paths):
 if __name__ == "__main__":
     import sys
     video_path = sys.argv[1]
-    image_paths = ["train/test/c.png"]
+    image_paths = ["save/train/Gongyoo/1.jpeg","save/train/Gongyoo/2.jpeg","save/train/Gongyoo/3.jpeg","save/train/Gongyoo/4.jpeg","save/train/Gongyoo/5.jpeg","save/train/Gongyoo/6.jpeg"]
     mosaic(video_path, image_paths)
