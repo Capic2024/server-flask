@@ -99,5 +99,5 @@ def mosaic(video_path, image_paths):
 if __name__ == "__main__":
     import sys
     video_path = sys.argv[1]
-    image_paths = ["save/train/Gongyoo/1.jpeg","save/train/Gongyoo/2.jpeg","save/train/Gongyoo/3.jpeg","save/train/Gongyoo/4.jpeg","save/train/Gongyoo/5.jpeg","save/train/Gongyoo/6.jpeg"]
+    image_paths = ["save/train/bbo/bbo.png","save/train/bbo/bbo2.png","save/train/bbo/bbo3.png","save/train/bbo/bbo4.png"]
     mosaic(video_path, image_paths)

@@ -57,7 +57,7 @@ def mosaic(video_path, image_paths):
         # YOLOv5를 사용하여 객체 감지
         results = model(frame)
 
-        threshold = 0.45
+        threshold = 0.6
 
         # 감지된 얼굴에 모자이크 처리
         for result in results.xyxy[0]:
@@ -112,7 +112,7 @@ def mosaic(video_path, image_paths):
             # 작업 완료 후 파일 닫기
     cap.release()
     out.release()
-    cv2.destroyAllWindows()
+    # cv2.destroyAllWindows()
 
     end_time = time.time()  # 종료 시간 기록
     elapsed_time = end_time - start_time  # 소요된 시간 계산
@@ -123,5 +123,5 @@ def mosaic(video_path, image_paths):
 if __name__ == "__main__":
     import sys
     video_path = sys.argv[1]
-    image_paths = ["save/train/Gongyoo/1.jpeg","save/train/Gongyoo/2.jpeg","save/train/Gongyoo/3.jpeg","save/train/Gongyoo/4.jpeg","save/train/Gongyoo/5.jpeg","save/train/Gongyoo/6.jpeg"]
+    image_paths = ["save/train/yoo/yoo1.png","save/train/yoo/yoo2.png","save/train/yoo/yoo3.png"]
     mosaic(video_path, image_paths)
