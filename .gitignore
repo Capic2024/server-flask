@@ -3,4 +3,9 @@ wider face.v3i.yolov5pytorch
 dist
 build
 myenv
-__pycache__
+DroneFace
+pytorch/deep_sort
+pytorch/wider face.v3i.yolov5pytorch
+pytorch/yolov5
+pytorch/deep_sort
+*.mp4

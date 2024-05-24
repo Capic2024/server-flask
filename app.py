@@ -1,7 +1,9 @@
 import os
 from createTarget import extract_and_identify_faces_from_video
-from yoona_target import yoona_test
-import mosaic
+from yoona_target import arcface_recognition, group_and_save_faces
+# import mosaic
+import mosaic_jiyeon
+# import deep2
 
 
 from flask import (Flask, request, send_file, jsonify)
@@ -24,7 +26,8 @@ def process_video():
 @app.route('/target2', methods=['POST'])
 def yoona():
     video_path='./cutVideo.mp4'
-    identified_faces = yoona_test(video_path)
+    identified_faces = arcface_recognition(video_path)
+    base64_faces = group_and_save_faces(identified_faces)
     # face_base64_arrays = save_faces(identified_faces)  # 이미지를 Base64 인코딩된 문자열로 반환
     return jsonify({"images": identified_faces})  # JSON 객체로 변환
 
@@ -47,8 +50,9 @@ def handle_video():
             image_paths.append(image_filename)
             print(f'Image {i} saved successfully.')
 
-    output_video_path = mosaic.mosaic(video_file.filename, image_paths)
-    # output_video_path = mosaic_jiyeon.mosaic(video_file.filename, image_paths)
+    # output_video_path = mosaic.mosaic(video_file.filename, image_paths)
+    output_video_path = mosaic_jiyeon.mosaic(video_file.filename, image_paths)
+    # output_video_path = deep2.mosaic(video_file.filename, image_paths)
     print(output_video_path)
     return send_file(output_video_path, mimetype='video/mp4', as_attachment=True, download_name='output_video.mp4')
 

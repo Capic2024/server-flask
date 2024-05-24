@@ -24,7 +24,7 @@ def mosaic(video_path, image_paths):
     face_count = 0
     current_frame_count = 0
 
-    model = torch.hub.load('./yolov5', 'custom', path='macWideface.pt', force_reload=True, source='local')
+    model = torch.hub.load('./yolov5', 'custom', path='best.pt', force_reload=True, source='local')
 
     embedding_list = []
     for image_path in image_paths:
@@ -59,7 +59,7 @@ def mosaic(video_path, image_paths):
                     distance = result['distance']
 
                     if not_threshold >= distance >= threshold:
-                        face_filename = f"D/face_{face_count}.jpg"
+                        face_filename = f"face_{face_count}.jpg"
                         verified_str = 'Different'
                         distance_str = '(%.4f >= %.4f)' % (distance, threshold)
                         print(face_filename,verified_str, distance_str)
@@ -71,7 +71,7 @@ def mosaic(video_path, image_paths):
                         break
 
                     if distance < threshold:
-                        face_filename = f"S/face_{face_count}.jpg"
+                        face_filename = f"face_{face_count}.jpg"
                         verified_str = 'Same'
                         distance_str = '(%.4f >= %.4f)' % (distance, threshold)
                         print(face_filename, verified_str, distance_str)
@@ -101,3 +101,9 @@ def mosaic(video_path, image_paths):
 
     return output_video_path
 
+
+if __name__ == "__main__":
+    import sys
+    video_path = sys.argv[1]
+    image_paths = ["save/train/Gongyoo/1.jpeg","save/train/Gongyoo/2.jpeg","save/train/Gongyoo/3.jpeg","save/train/Gongyoo/4.jpeg","save/train/Gongyoo/5.jpeg","save/train/Gongyoo/6.jpeg"]
+    mosaic(video_path, image_paths)
