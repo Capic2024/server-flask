@@ -36,6 +36,9 @@ def mosaic(video_path, image_paths):
         )
         embedding_list.append(embedding_result["embeddings"][0])
 
+    threshold = 0.3
+    not_threshold = 0.47
+
     while cap.isOpened():
         ret, frame = cap.read()
         if not ret:
@@ -45,13 +48,6 @@ def mosaic(video_path, image_paths):
         detections = model(frame)
 
         print(f"{current_frame_count}감지 시작")
-
-        if len(detections.xyxy[0]) > 2:
-            threshold = 0.27
-            not_threshold = 0.2851
-        else:
-            threshold = 0.3
-            not_threshold = 0.47
 
         for face_id in detections.xyxy[0]:
             x1, y1, x2, y2 = face_id[:4].int().tolist()
@@ -84,9 +80,15 @@ def mosaic(video_path, image_paths):
                         break
 
                     if distance > not_threshold:
+                        face_filename = f"D/face_{face_count}.jpg"
+                        verified_str = 'Different'
+                        distance_str = '(%.4f >= %.4f)' % (distance, threshold)
+                        print(face_filename, verified_str, distance_str)
                         face = cv2.resize(face_image, (10, 10))
                         face = cv2.resize(face, (x2 - x1, y2 - y1), interpolation=cv2.INTER_AREA)
                         frame[y1:y2, x1:x2] = face
+                        face_filepath = os.path.join(faces_dir, face_filename)
+                        cv2.imwrite(face_filepath, face_image)
                         break
 
                 face_count += 1
