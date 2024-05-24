@@ -100,10 +100,3 @@ def mosaic(video_path, image_paths):
     cv2.destroyAllWindows()
 
     return output_video_path
-
-
-if __name__ == "__main__":
-    import sys
-    video_path = sys.argv[1]
-    image_paths = ["save/train/yoo/image4.jpeg","save/train/yoo/image5.jpeg","save/train/yoo/image6.jpeg"]
-    mosaic(video_path, image_paths)
